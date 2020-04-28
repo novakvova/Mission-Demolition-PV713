@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -73,6 +73,7 @@ public class SlingShot : MonoBehaviour
             aimingMode = false;
             projectileRigidbody.isKinematic = false;
             projectileRigidbody.velocity = -mouseDelta * velocityMult;
+	    FollowCam.POI = projectile;
             projectile = null;
         }
     }
