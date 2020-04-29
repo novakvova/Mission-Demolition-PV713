@@ -25,21 +25,28 @@ public class FollowCam : MonoBehaviour
         // Получить позицию интересующего объекта
         Vector3 destination = POI.transform.position; */
         Vector3 destination;
-        if(POI == null)
+        if (POI == null)
         {
             destination = Vector3.zero;
-        } else
+        }
+        else
         {
+            // Получить позицию интересующего объекта
             destination = POI.transform.position;
-            if(POI.tag == "Projectile")
+            // Если интересующий объект - снаряд, убедиться, что он остановился
+            if (POI.tag == "Projectile")
             {
-                if (POI.GetComponent<Rigidbody>().IsSleeping())
+            //11 Если он стоит на месте(то есть не двигается)
+            if (POI.GetComponent<Rigidbody>().IsSleeping())
                 {
+                    // Вернуть исходные настройки поля зрения камеры
                     POI = null;
+                    //в следующем кадре
                     return;
                 }
             }
         }
+        // Ограничить X и Y минимальными значениями
 
 
         destination.x = Mathf.Max(minXY.x, destination.x);
