@@ -842,11 +842,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabProjectile: {fileID: 76146042705096974, guid: 0ec6b519baca603419c4ada98ab81a81,
     type: 3}
+  materials:
+  - {fileID: 2100000, guid: e90712c5563edcf45b1b77d8a1431bdc, type: 2}
+  - {fileID: 2100000, guid: 92f232320118f534280c4891cbc90cfb, type: 2}
   velocityMult: 8
   launchPoint: {fileID: 0}
   launchPos: {x: 0, y: 0, z: 0}
   projectile: {fileID: 0}
   aimingMode: 0
+  Material_In: {fileID: 2100000, guid: 77f4f1638665a4f44b85b39e9a075023, type: 2}
 --- !u!4 &523727256 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6823195377587800286, guid: 6863c09537cc2f648a56e3fc9de5f04b,

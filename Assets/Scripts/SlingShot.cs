@@ -6,6 +6,7 @@ public class SlingShot : MonoBehaviour
 {
     [Header("Set in Inspector")]
     public GameObject prefabProjectile;
+    public Material[] materials;
     public float velocityMult = 8f;
     [Header("Set Dynamically")]
 
@@ -14,6 +15,10 @@ public class SlingShot : MonoBehaviour
     public GameObject projectile; // b
     public bool aimingMode;
     private Rigidbody projectileRigidbody;
+    //*********************************************
+    public Material Material_In;
+    private int i = 0;
+    //*********************************************
     void Awake()
     {
         Transform launchPointTrans = transform.Find("LaunchPoint");
@@ -38,6 +43,23 @@ public class SlingShot : MonoBehaviour
         aimingMode = true;
         // Создать снаряд
         projectile = Instantiate(prefabProjectile) as GameObject;
+        //List<Component> hingeJoints = new List<Component>();
+        //projectile.GetComponents(typeof(GameObject), hingeJoints);
+        //Debug.Log(hingeJoints.ToString());
+
+        //******************************************************************************
+        
+        if (i >= materials.Length)
+        {
+            i = 0;
+        }
+        Material[] mats = projectile.GetComponent<Renderer>().materials;
+        mats[0] = materials[i];
+        projectile.GetComponent<Renderer>().materials = mats;
+        i++;
+        
+        //******************************************************************************
+
         // Поместить в точку launchPoint
         projectile.transform.position = launchPos;
         // Сделать его кинематическим
