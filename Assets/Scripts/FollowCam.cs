@@ -18,7 +18,17 @@ public class FollowCam : MonoBehaviour
 	void Awake() {
 	camZ = this.transform.position.z;
 	}
-	 void FixedUpdate()
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+
+    }
+    void FixedUpdate()
     {
         /* //Однострочная версия if не требует фигурных скобок
         if (POI == null) return;
