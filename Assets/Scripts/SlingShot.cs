@@ -59,16 +59,16 @@ public class SlingShot : MonoBehaviour
         //Debug.Log(hingeJoints.ToString());
 
         //******************************************************************************
-        
-        //if (i >= materials.Length)
-        //{
-        //    i = 0;
-        //}
-        //Material[] mats = projectile.GetComponent<Renderer>().materials;
-        //mats[0] = materials[i];
-        //projectile.GetComponent<Renderer>().materials = mats;
-        //i++;
-        
+
+        if (i >= materials.Length)
+        {
+            i = 0;
+        }
+        Material[] mats = projectile.GetComponent<Renderer>().materials;
+        mats[0] = materials[i];
+        projectile.GetComponent<Renderer>().materials = mats;
+        i++;
+
         //******************************************************************************
 
         // Поместить в точку launchPoint
