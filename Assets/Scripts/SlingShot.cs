@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class SlingShot : MonoBehaviour
 {
+    static private SlingShot S;
+
     [Header("Set in Inspector")]
     public GameObject prefabProjectile;
     public Material[] materials;
@@ -15,12 +17,21 @@ public class SlingShot : MonoBehaviour
     public GameObject projectile; // b
     public bool aimingMode;
     private Rigidbody projectileRigidbody;
+    static public Vector3 LAUNCH_POS
+    {
+        get
+        {
+            if (S == null) return Vector3.zero;
+            return S.launchPos;
+        }
+    }
     //*********************************************
     public Material Material_In;
     private int i = 0;
     //*********************************************
     void Awake()
     {
+        S = this;
         Transform launchPointTrans = transform.Find("LaunchPoint");
         launchPoint = launchPointTrans.gameObject;
         launchPoint.SetActive(false); // b
