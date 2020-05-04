@@ -86,6 +86,46 @@ public class SlingShot : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //if(Input.GetKeyDown(KeyCode.Space))
+        //{
+        //    projectile = Instantiate(prefabProjectile) as GameObject;
+
+        //    if (i >= materials.Length)
+        //    {
+        //        i = 0;
+        //    }
+        //    Material[] mats = projectile.GetComponent<Renderer>().materials;
+        //    mats[0] = materials[i];
+        //    projectile.GetComponent<Renderer>().materials = mats;
+        //    i++;
+
+
+        //    // Сделать его кинематическим
+        //    projectile.GetComponent<Rigidbody>().isKinematic = true;
+        //    projectileRigidbody = projectile.GetComponent<Rigidbody>();
+        //    projectileRigidbody.isKinematic = true;
+
+
+
+
+        //    Vector3 myPos = new Vector3(-11.8f, -8.2f, 0.0f);
+        //    projectile.transform.position = myPos;
+
+        //    projectileRigidbody.isKinematic = false;
+
+        //    Vector3 v = new Vector3(14.7f, 17.5f, 0.0f);
+        //    projectileRigidbody.velocity = v;
+
+        //    FollowCam.POI = projectile;
+        //    projectile = null;
+
+
+        //    MissionDemolition.ShotFired(); // a
+        //    ProjectileLine.S.poi = projectile;
+
+        //}
+
+
         if (!aimingMode) return;
         Vector3 mousePos2D = Input.mousePosition; // с
         mousePos2D.z = -Camera.main.transform.position.z;
@@ -106,10 +146,11 @@ public class SlingShot : MonoBehaviour
             aimingMode = false;
             projectileRigidbody.isKinematic = false;
             projectileRigidbody.velocity = -mouseDelta * velocityMult;
-	        FollowCam.POI = projectile;
+
+            FollowCam.POI = projectile;
             projectile = null;
 
-            
+
             MissionDemolition.ShotFired(); // a
             ProjectileLine.S.poi = projectile;
         }
