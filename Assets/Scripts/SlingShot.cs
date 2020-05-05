@@ -3,10 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Networking;
+using Newtonsoft.Json;
 
 public class SlingShot : MonoBehaviour
 {
@@ -35,6 +34,54 @@ public class SlingShot : MonoBehaviour
     public Material Material_In;
     private int i = 0;
     //*********************************************
+
+
+
+    void Start()
+    {
+        Invoke("GetRequest", 2f);
+    }
+
+    void GetRequest()
+    {
+        // PositionCollider positionCollider = Network.GetData().Result;
+        var pc = Network.GetData().Result;
+
+        projectile = Instantiate(prefabProjectile) as GameObject;
+
+        if (i >= materials.Length)
+        {
+            i = 0;
+        }
+        Material[] mats = projectile.GetComponent<Renderer>().materials;
+        mats[0] = materials[i];
+        projectile.GetComponent<Renderer>().materials = mats;
+        i++;
+
+        // Сделать его кинематическим
+        projectile.GetComponent<Rigidbody>().isKinematic = true;
+        projectileRigidbody = projectile.GetComponent<Rigidbody>();
+        projectileRigidbody.isKinematic = true;
+
+
+        //Vector3 myPos = new Vector3(pc.pos); //positionCollider.pos;//
+        projectile.transform.position = pc.pos;
+
+        projectileRigidbody.isKinematic = false;
+
+        //Vector3 v = new Vector3(14.7f, 17.5f, 0.0f);//positionCollider.velocity;
+        projectileRigidbody.velocity = pc.velocity;
+
+        FollowCam.POI = projectile;
+        projectile = null;
+
+
+        MissionDemolition.ShotFired(); // a
+        ProjectileLine.S.poi = projectile;
+
+        Invoke("GetRequest", 1f);
+    }
+
     void Awake()
     {
         S = this;
@@ -84,48 +131,37 @@ public class SlingShot : MonoBehaviour
         projectileRigidbody = projectile.GetComponent<Rigidbody>();
         projectileRigidbody.isKinematic = true;
     }
-    void Start()
-    {
-
-    }
+   
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        //if (Input.GetKeyDown(KeyCode.Space))
+        //{
+
+        //}
+
+
+        if (!aimingMode) return;
+        Vector3 mousePos2D = Input.mousePosition; // с
+        mousePos2D.z = -Camera.main.transform.position.z;
+        Vector3 mousePos3D = Camera.main.ScreenToWorldPoint(mousePos2D);
+        Vector3 mouseDelta = mousePos3D - launchPos;
+        // Ограничить mouseDelta радиусом коллайдера объекта Slingshot // d
+        float maxMagnitude = this.GetComponent<SphereCollider>().radius;
+        if (mouseDelta.magnitude > maxMagnitude)
         {
-
-            // PositionCollider positionCollider = Network.GetData().Result;
-            string res = Network.GetData().Result;
-            print(Network.GetData().Result);
-
-            projectile = Instantiate(prefabProjectile) as GameObject;
-
-            if (i >= materials.Length)
-            {
-                i = 0;
-            }
-            Material[] mats = projectile.GetComponent<Renderer>().materials;
-            mats[0] = materials[i];
-            projectile.GetComponent<Renderer>().materials = mats;
-            i++;
-
-
-            // Сделать его кинематическим
-            projectile.GetComponent<Rigidbody>().isKinematic = true;
-            projectileRigidbody = projectile.GetComponent<Rigidbody>();
-            projectileRigidbody.isKinematic = true;
-
-
-
-
-            Vector3 myPos = new Vector3(-11.8f, -8.2f, 0.0f); //positionCollider.pos;//
-            projectile.transform.position = myPos;
-
+            mouseDelta.Normalize();
+            mouseDelta *= maxMagnitude;
+        }
+        Vector3 projPos = launchPos + mouseDelta;
+        projectile.transform.position = projPos;
+        if (Input.GetMouseButtonUp(0))
+        { // e
+          // Кнопка мыши отпущена
+            aimingMode = false;
             projectileRigidbody.isKinematic = false;
-
-            Vector3 v = new Vector3(14.7f, 17.5f, 0.0f);//positionCollider.velocity;
-            projectileRigidbody.velocity = v;
+            projectileRigidbody.velocity = -mouseDelta * velocityMult;
 
             FollowCam.POI = projectile;
             projectile = null;
@@ -133,38 +169,7 @@ public class SlingShot : MonoBehaviour
 
             MissionDemolition.ShotFired(); // a
             ProjectileLine.S.poi = projectile;
-
         }
-
-
-        //if (!aimingMode) return;
-        //Vector3 mousePos2D = Input.mousePosition; // с
-        //mousePos2D.z = -Camera.main.transform.position.z;
-        //Vector3 mousePos3D = Camera.main.ScreenToWorldPoint(mousePos2D);
-        //Vector3 mouseDelta = mousePos3D - launchPos;
-        //// Ограничить mouseDelta радиусом коллайдера объекта Slingshot // d
-        //float maxMagnitude = this.GetComponent<SphereCollider>().radius;
-        //if (mouseDelta.magnitude > maxMagnitude)
-        //{
-        //    mouseDelta.Normalize();
-        //    mouseDelta *= maxMagnitude;
-        //}
-        //Vector3 projPos = launchPos + mouseDelta;
-        //projectile.transform.position = projPos;
-        //if (Input.GetMouseButtonUp(0))
-        //{ // e
-        //  // Кнопка мыши отпущена
-        //    aimingMode = false;
-        //    projectileRigidbody.isKinematic = false;
-        //    projectileRigidbody.velocity = -mouseDelta * velocityMult;
-
-        //    FollowCam.POI = projectile;
-        //    projectile = null;
-
-
-        //    MissionDemolition.ShotFired(); // a
-        //    ProjectileLine.S.poi = projectile;
-        //}
     }
 
 
@@ -173,35 +178,23 @@ public class SlingShot : MonoBehaviour
 
 public  class Network
 {
-    public static async Task<string> GetData()
+    public static async Task<PositionCollider> GetData()
     {
-      //  UnityWebRequest request = UnityWebRequest.Get("http://52.155.182.96/api/game"); 
-      //  //HttpClient client = new HttpClient();
-      // // HttpResponseMessage response = await client.GetAsync("http://52.155.182.96/api/game");
-      //UnityWebResponce
-      //  response.EnsureSuccessStatusCode();
-      //  var resp = await response.Content.ReadAsStringAsync();
-      //  PositionCollider positionCollider = JsonUtility.FromJson<PositionCollider>(resp); //JsonConvert.DeserializeObject<PositionCollider>(resp);
-      //  return positionCollider;
-
-
         const string url = "http://52.155.182.96/api/game";
-        //const string url = "http://52.155.167.255/api/test";
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
         request.Method = "GET";
         var webResponse = request.GetResponse();
         var webStream = webResponse.GetResponseStream();
         var responseReader = new StreamReader(webStream);
         string response = responseReader.ReadToEnd();
-       // print(response);
+        PositionCollider pc = JsonConvert.DeserializeObject<PositionCollider>(response);
         responseReader.Close();
-        return response;
+        return pc;
 
     }
 
 }
 
-[Serializable]
 public class PositionCollider
 {
   public Vector3 pos { get; set; }
