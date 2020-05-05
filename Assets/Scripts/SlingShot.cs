@@ -39,7 +39,7 @@ public class SlingShot : MonoBehaviour
 
     void Start()
     {
-        Invoke("GetRequest", 2f);
+        //Invoke("GetRequest", 2f);
     }
 
     void GetRequest()
@@ -169,6 +169,8 @@ public class SlingShot : MonoBehaviour
 
             MissionDemolition.ShotFired(); // a
             ProjectileLine.S.poi = projectile;
+
+            Network.PostData(projPos, projectileRigidbody.velocity);
         }
     }
 
@@ -180,7 +182,7 @@ public  class Network
 {
     public static async Task<PositionCollider> GetData()
     {
-        const string url = "http://52.155.182.96/api/game";
+        const string url = "http://40.127.228.88/api/game";
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
         request.Method = "GET";
         var webResponse = request.GetResponse();
@@ -193,11 +195,34 @@ public  class Network
 
     }
 
+    public static void PostData(Vector3 pos, Vector3 velocity)
+    {
+        var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://40.127.228.88/api/game");
+        httpWebRequest.ContentType = "application/json";
+        httpWebRequest.Method = "POST";
+        using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+        {
+            PositionCollider pc = new PositionCollider
+            {
+                Nick = "Dmitrius",
+                pos = pos,
+                velocity = velocity
+            };
+            string json = JsonConvert.SerializeObject(pc);
+            streamWriter.Write(json);
+        }
+        var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+        {
+            var result = streamReader.ReadToEnd();
+        }
+    }
 }
 
 public class PositionCollider
 {
-  public Vector3 pos { get; set; }
-  public Vector3 velocity { get; set; }
+    public string Nick { get; set; }
+    public Vector3 pos { get; set; }
+    public Vector3 velocity { get; set; }
 
 }
