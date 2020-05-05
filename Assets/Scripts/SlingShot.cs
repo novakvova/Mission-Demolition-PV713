@@ -39,48 +39,55 @@ public class SlingShot : MonoBehaviour
 
     void Start()
     {
-        //Invoke("GetRequest", 2f);
+        Invoke("GetRequest", 2f);
     }
 
     void GetRequest()
     {
         // PositionCollider positionCollider = Network.GetData().Result;
         var pc = Network.GetData().Result;
-
-        projectile = Instantiate(prefabProjectile) as GameObject;
-
-        if (i >= materials.Length)
+        if (pc == null)
         {
-            i = 0;
+            Invoke("GetRequest", 1f);
         }
-        Material[] mats = projectile.GetComponent<Renderer>().materials;
-        mats[0] = materials[i];
-        projectile.GetComponent<Renderer>().materials = mats;
-        i++;
+        else
+        {
+            projectile = Instantiate(prefabProjectile) as GameObject;
 
-        // Сделать его кинематическим
-        projectile.GetComponent<Rigidbody>().isKinematic = true;
-        projectileRigidbody = projectile.GetComponent<Rigidbody>();
-        projectileRigidbody.isKinematic = true;
+            if (i >= materials.Length)
+            {
+                i = 0;
+            }
+            Material[] mats = projectile.GetComponent<Renderer>().materials;
+            mats[0] = materials[i];
+            projectile.GetComponent<Renderer>().materials = mats;
+            i++;
 
-        //????????????
-        //Vector3 myPos = new Vector3(pc.pos); //positionCollider.pos;//
-        //projectile.transform.position = pc.pos;
+            // Сделать его кинематическим
+            projectile.GetComponent<Rigidbody>().isKinematic = true;
+            projectileRigidbody = projectile.GetComponent<Rigidbody>();
+            projectileRigidbody.isKinematic = true;
 
-        projectileRigidbody.isKinematic = false;
+            //????????????
+            Vector3 myPos = new Vector3(pc.pos.X, pc.pos.Y, pc.pos.Z); //positionCollider.pos;//
+            projectile.transform.position = myPos;
 
-        //????????????
-        //Vector3 v = new Vector3(14.7f, 17.5f, 0.0f);//positionCollider.velocity;
-        //projectileRigidbody.velocity = pc.velocity;
+            projectileRigidbody.isKinematic = false;
 
-        FollowCam.POI = projectile;
-        projectile = null;
+            //????????????
+            Vector3 v = new Vector3(pc.velocity.X, pc.velocity.Y, pc.velocity.Z);//positionCollider.velocity;
+            projectileRigidbody.velocity = v;
+
+            FollowCam.POI = projectile;
+            projectile = null;
 
 
-        MissionDemolition.ShotFired(); // a
-        ProjectileLine.S.poi = projectile;
+            MissionDemolition.ShotFired(); // a
+            ProjectileLine.S.poi = projectile;
 
-        Invoke("GetRequest", 1f);
+            Invoke("GetRequest", 1f);
+        }
+        
     }
 
     void Awake()
@@ -182,7 +189,7 @@ public  class Network
 {
     public static async Task<PositionCollider> GetData()
     {
-        const string url = "http://40.127.228.88/api/game";
+        const string url = "http://40.127.228.88/api/game/vv";
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
         request.Method = "GET";
         var webResponse = request.GetResponse();
@@ -192,7 +199,7 @@ public  class Network
         PositionCollider pc = JsonConvert.DeserializeObject<PositionCollider>(response);
         responseReader.Close();
         return pc;
-
+        
     }
 
     public static void PostData(Vector3 pos, Vector3 velocity)
