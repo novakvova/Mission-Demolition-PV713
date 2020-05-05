@@ -63,14 +63,15 @@ public class SlingShot : MonoBehaviour
         projectileRigidbody = projectile.GetComponent<Rigidbody>();
         projectileRigidbody.isKinematic = true;
 
-
+        //????????????
         //Vector3 myPos = new Vector3(pc.pos); //positionCollider.pos;//
-        projectile.transform.position = pc.pos;
+        //projectile.transform.position = pc.pos;
 
         projectileRigidbody.isKinematic = false;
 
+        //????????????
         //Vector3 v = new Vector3(14.7f, 17.5f, 0.0f);//positionCollider.velocity;
-        projectileRigidbody.velocity = pc.velocity;
+        //projectileRigidbody.velocity = pc.velocity;
 
         FollowCam.POI = projectile;
         projectile = null;
@@ -163,14 +164,13 @@ public class SlingShot : MonoBehaviour
             projectileRigidbody.isKinematic = false;
             projectileRigidbody.velocity = -mouseDelta * velocityMult;
 
+            Network.PostData(projPos, projectileRigidbody.velocity);
             FollowCam.POI = projectile;
             projectile = null;
-
 
             MissionDemolition.ShotFired(); // a
             ProjectileLine.S.poi = projectile;
 
-            Network.PostData(projPos, projectileRigidbody.velocity);
         }
     }
 
@@ -204,9 +204,9 @@ public  class Network
         {
             PositionCollider pc = new PositionCollider
             {
-                Nick = "Dmitrius",
-                pos = pos,
-                velocity = velocity
+                Nick = "vv",
+                pos = new PosVextor3 { X = pos.x, Y = pos.y, Z = pos.z },
+                velocity = new PosVextor3 { X = velocity.x, Y = velocity.y, Z = velocity.z }
             };
             string json = JsonConvert.SerializeObject(pc);
             streamWriter.Write(json);
@@ -222,7 +222,14 @@ public  class Network
 public class PositionCollider
 {
     public string Nick { get; set; }
-    public Vector3 pos { get; set; }
-    public Vector3 velocity { get; set; }
+    public PosVextor3 pos { get; set; }
+    public PosVextor3 velocity { get; set; }
 
+}
+
+public class PosVextor3
+{
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
 }
