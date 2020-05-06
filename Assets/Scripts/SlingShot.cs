@@ -9,8 +9,11 @@ using Newtonsoft.Json;
 
 public class SlingShot : MonoBehaviour
 {
-    static private SlingShot S;
 
+    static private SlingShot S;
+    public static string firstName;
+    public static string secondName;
+    public static bool isFirstShot;
     [Header("Set in Inspector")]
     public GameObject prefabProjectile;
     public Material[] materials;
@@ -22,6 +25,9 @@ public class SlingShot : MonoBehaviour
     public GameObject projectile; // b
     public bool aimingMode;
     private Rigidbody projectileRigidbody;
+
+
+
     static public Vector3 LAUNCH_POS
     {
         get
@@ -45,7 +51,7 @@ public class SlingShot : MonoBehaviour
     void GetRequest()
     {
         // PositionCollider positionCollider = Network.GetData().Result;
-        var pc = Network.GetData().Result;
+        var pc = Network.GetData(secondName).Result;
         if (pc == null)
         {
             Invoke("GetRequest", 1f);
@@ -84,7 +90,7 @@ public class SlingShot : MonoBehaviour
 
             MissionDemolition.ShotFired(); // a
             ProjectileLine.S.poi = projectile;
-
+            isFirstShot = true;
             Invoke("GetRequest", 1f);
         }
         
@@ -112,32 +118,36 @@ public class SlingShot : MonoBehaviour
     void OnMouseDown()
     { // d
       // Игрок нажал кнопку мыши, когда указатель находился над рогаткой
-        aimingMode = true;
-        // Создать снаряд
-        projectile = Instantiate(prefabProjectile) as GameObject;
-        //List<Component> hingeJoints = new List<Component>();
-        //projectile.GetComponents(typeof(GameObject), hingeJoints);
-        //Debug.Log(hingeJoints.ToString());
-
-        //******************************************************************************
-
-        if (i >= materials.Length)
+        if (isFirstShot)
         {
-            i = 0;
+            aimingMode = true;
+            // Создать снаряд
+            projectile = Instantiate(prefabProjectile) as GameObject;
+            //List<Component> hingeJoints = new List<Component>();
+            //projectile.GetComponents(typeof(GameObject), hingeJoints);
+            //Debug.Log(hingeJoints.ToString());
+
+            //******************************************************************************
+
+            if (i >= materials.Length)
+            {
+                i = 0;
+            }
+            Material[] mats = projectile.GetComponent<Renderer>().materials;
+            mats[0] = materials[i];
+            projectile.GetComponent<Renderer>().materials = mats;
+            i++;
+
+            //******************************************************************************
+
+            // Поместить в точку launchPoint
+            projectile.transform.position = launchPos;
+            // Сделать его кинематическим
+            projectile.GetComponent<Rigidbody>().isKinematic = true;
+            projectileRigidbody = projectile.GetComponent<Rigidbody>();
+            projectileRigidbody.isKinematic = true;
         }
-        Material[] mats = projectile.GetComponent<Renderer>().materials;
-        mats[0] = materials[i];
-        projectile.GetComponent<Renderer>().materials = mats;
-        i++;
-
-        //******************************************************************************
-
-        // Поместить в точку launchPoint
-        projectile.transform.position = launchPos;
-        // Сделать его кинематическим
-        projectile.GetComponent<Rigidbody>().isKinematic = true;
-        projectileRigidbody = projectile.GetComponent<Rigidbody>();
-        projectileRigidbody.isKinematic = true;
+      
     }
    
 
@@ -171,7 +181,7 @@ public class SlingShot : MonoBehaviour
             projectileRigidbody.isKinematic = false;
             projectileRigidbody.velocity = -mouseDelta * velocityMult;
 
-            Network.PostData(projPos, projectileRigidbody.velocity);
+            Network.PostData(firstName,projPos, projectileRigidbody.velocity);
             FollowCam.POI = projectile;
             projectile = null;
 
@@ -187,9 +197,10 @@ public class SlingShot : MonoBehaviour
 
 public  class Network
 {
-    public static async Task<PositionCollider> GetData()
+    public static async Task<PositionCollider> GetData(string nick)
     {
-        const string url = "http://40.127.228.88/api/game/vv";
+       
+         string url = "http://52.171.228.182/api/game/" + nick;
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
         request.Method = "GET";
         var webResponse = request.GetResponse();
@@ -202,16 +213,16 @@ public  class Network
         
     }
 
-    public static void PostData(Vector3 pos, Vector3 velocity)
+    public static void PostData(string nick,Vector3 pos, Vector3 velocity)
     {
-        var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://40.127.228.88/api/game");
+        var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://52.171.228.182/api/game");
         httpWebRequest.ContentType = "application/json";
         httpWebRequest.Method = "POST";
         using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
         {
             PositionCollider pc = new PositionCollider
             {
-                Nick = "vv",
+                Nick = nick,
                 pos = new PosVextor3 { X = pos.x, Y = pos.y, Z = pos.z },
                 velocity = new PosVextor3 { X = velocity.x, Y = velocity.y, Z = velocity.z }
             };
