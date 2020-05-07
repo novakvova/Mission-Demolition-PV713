@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading.Tasks;
 using UnityEngine;
 using Newtonsoft.Json;
+using System.Runtime.InteropServices;
 
 public class SlingShot : MonoBehaviour
 {
@@ -209,6 +210,7 @@ public  class Network
         var webStream = webResponse.GetResponseStream();
         var responseReader = new StreamReader(webStream);
         string response = responseReader.ReadToEnd();
+        Debug.Log("------------"+response);
         PositionCollider pc = JsonConvert.DeserializeObject<PositionCollider>(response);
         responseReader.Close();
         return pc;
