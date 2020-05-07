@@ -14,10 +14,12 @@ public class SlingShot : MonoBehaviour
     public static string firstName;
     public static string secondName;
     public static bool isFirstShot;
+
     [Header("Set in Inspector")]
     public GameObject prefabProjectile;
     public Material[] materials;
     public float velocityMult = 8f;
+    public float frequency = 0.5f;
     [Header("Set Dynamically")]
 
     public GameObject launchPoint;
@@ -45,7 +47,7 @@ public class SlingShot : MonoBehaviour
 
     void Start()
     {
-        Invoke("GetRequest", 2f);
+        Invoke("GetRequest", frequency);
     }
 
     void GetRequest()
@@ -54,7 +56,7 @@ public class SlingShot : MonoBehaviour
         var pc = Network.GetData(secondName).Result;
         if (pc == null)
         {
-            Invoke("GetRequest", 1f);
+            Invoke("GetRequest", frequency);
         }
         else
         {
@@ -91,7 +93,7 @@ public class SlingShot : MonoBehaviour
             MissionDemolition.ShotFired(); // a
             ProjectileLine.S.poi = projectile;
             isFirstShot = true;
-            Invoke("GetRequest", 1f);
+            Invoke("GetRequest", frequency);
         }
         
     }
@@ -180,7 +182,7 @@ public class SlingShot : MonoBehaviour
             aimingMode = false;
             projectileRigidbody.isKinematic = false;
             projectileRigidbody.velocity = -mouseDelta * velocityMult;
-
+            isFirstShot = false;
             Network.PostData(firstName,projPos, projectileRigidbody.velocity);
             FollowCam.POI = projectile;
             projectile = null;
