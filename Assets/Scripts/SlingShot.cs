@@ -203,7 +203,7 @@ public  class Network
     public static async Task<PositionCollider> GetData(string nick)
     {
        
-         string url = "http://52.171.228.182/api/game/" + nick;
+         string url = "http://91.238.103.45:200/api/game/" + nick;
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
         request.Method = "GET";
         var webResponse = request.GetResponse();
@@ -219,7 +219,7 @@ public  class Network
 
     public static void PostData(string nick,Vector3 pos, Vector3 velocity)
     {
-        var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://52.171.228.182/api/game");
+        var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://91.238.103.45:200/api/game");
         httpWebRequest.ContentType = "application/json";
         httpWebRequest.Method = "POST";
         using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
